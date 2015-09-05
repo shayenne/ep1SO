@@ -9,6 +9,7 @@
 #include <string.h>
 #include <errno.h>
 
+#define TRUE 1
 
 void firstCmd(char *argv[]);
 void prompt();
@@ -21,31 +22,26 @@ int main(){
   char *argv[] = { "" };
   char *token;
 
-  const char str1[10] = {"exit"};
   pid_t pid;
-  
+
   prompt();
   line = readline("");
 
-  while (strcmp(line, str1) != 0){
+  while (TRUE){
 
     firstCmd(argv);
-
     
-    if(argv[0] != NULL && argv[0] != "" ){
+    if(argv[0] != "" ){
       if ((pid = fork()) == 0)
 	e = execve(argv[0], argv, envp);
         
       else
-
 	waitpid(-1, NULL, 0);
     }
 
     if (line && *line)
       add_history(line);
 
-
-    argv[0] = NULL;
     prompt();
     line = readline("");
   }
@@ -64,14 +60,18 @@ void prompt() {
 void firstCmd(char *argv[]){
   char *token;
   char *ex;
+  char *cwd;
   int i;
 
-  char *cwd;
-
+  argv[0] = "";
   token = strtok(line, " ");
 
+
+  if (token == NULL) 
+    return;
+
   //TRATAMENTO DE ls
-  if (strcmp(token, "ls") == 0){
+  else  if (strcmp(token, "ls") == 0){
     argv[0] = "/bin/ls";
 
     token = strtok(NULL, " ");
@@ -89,10 +89,13 @@ void firstCmd(char *argv[]){
     chdir(token);
   }
 
+  //TRATAMENTO exit
+  else if (strcmp(token, "exit") == 0) {
+    printf("EXIT FUNCTION\n\n");
+    exit(EXIT_SUCCESS);
+  }
+
   //TRATAMENTO DE pwd
   else if (strcmp(token, "pwd") == 0)
     printf("%s\n\n", (const char *)get_current_dir_name());
-
-  else
-    argv[0] = NULL;
 }
