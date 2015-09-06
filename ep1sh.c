@@ -9,41 +9,27 @@
 #include <string.h>
 #include <errno.h>
 
-#define TRUE 1
+void command(char *argv[]);
 
-void firstCmd(char *argv[]);
-void prompt();
-static char *line = (char *)NULL;
-
+static char *line = {""};
 
 int main(){
   int e;
   char *envp[] = { NULL };
   char *argv[] = { "" };
   char *token;
-
   pid_t pid;
 
-  prompt();
-  line = readline("");
-
-  while (TRUE){
-
-    firstCmd(argv);
+  while (strncmp("exit", line, 4) != 0){
+    command(argv);
     
-    if(argv[0] != "" ){
+    if (argv[0] != ""){
       if ((pid = fork()) == 0)
 	e = execve(argv[0], argv, envp);
         
       else
 	waitpid(-1, NULL, 0);
     }
-
-    if (line && *line)
-      add_history(line);
-
-    prompt();
-    line = readline("");
   }
 
   free(line);
@@ -51,21 +37,25 @@ int main(){
 }
 
 
-void prompt() {
+void command(char *argv[]){
   const char *cwd = (const char *) get_current_dir_name();      
-  printf("[%s] ",cwd);
-
-}
-
-void firstCmd(char *argv[]){
+  const char *ex;
   char *token;
-  char *ex;
-  char *cwd;
+  char prompt[70] = "[";
   int i;
+
+  //TRATAMENTO DO PROMPT [local]
+  ex = strtok((char *)cwd, " ");
+  strcat(prompt, ex);
+  strcat(prompt, "] ");
+
+  line = readline(prompt);
+
+  if (line && *line) 
+    add_history(line);
 
   argv[0] = "";
   token = strtok(line, " ");
-
 
   if (token == NULL) 
     return;
@@ -89,13 +79,9 @@ void firstCmd(char *argv[]){
     chdir(token);
   }
 
-  //TRATAMENTO exit
-  else if (strcmp(token, "exit") == 0) {
-    printf("EXIT FUNCTION\n\n");
-    exit(EXIT_SUCCESS);
-  }
-
   //TRATAMENTO DE pwd
   else if (strcmp(token, "pwd") == 0)
-    printf("%s\n\n", (const char *)get_current_dir_name());
+    printf("%s\n",cwd);
+
+  free((char *)cwd);
 }
