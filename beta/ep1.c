@@ -1,107 +1,74 @@
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
-#define NMAX 100
-#define NAME 20
-
-
-typedef struct processo {
-	double t0;
-	char nome[NAME];
-	double dt;
-	double deadline;
-	int p;
-	double rtime;
-} Processo;
+#include <stdio.h>  /* fprintf(), fscanf() */
+#include <stdlib.h> /* EXIT_FAILURE, EXIT_SUCESS, malloc(), free() */
+#include <string.h> /* strcmp() */
+#include "queue.h"  /* queueInit(), queueEmpty(), queuePut(), 
+                       queueGet(), queueFree() */
+#include "item.h"
+#include "util.h"   /* mallocSafe(), pause(), Bool */
+#include "ep1.h"
 
 
-typedef struct lista {
-	Processo * proc;
-	struct lista *prox;
-} Lista;
 
-void printProcesso(Processo *p) {
-
-	//printf("\nProcesso: %lf %s %lf %lf %d %lf\n", p->t0, p->nome, p->dt, p->deadline, p->p, p->rtime);
-	printf("\nProcesso: %f %s\n", p->t0,p->nome);
-}
-
-void freeLista(Lista *l) {
-	Lista * tmp;
+void leProcessos(FILE * entrada) {
+	char  nome[20] = "\0";
+	double t0, dt, deadline;
+	int pr, k, linha = 0;
+	Processo p, q;
 	
-	while (l != NULL) {
-		tmp = l->prox;
-		free(l->proc);
-		free(l);
-		l = tmp;
-	}
-}
+	while(TRUE) {
+		p = (Processo) malloc(sizeof(struct processo));
+		k = fscanf(entrada, "%lf %s %lf %lf %d", &t0, nome, &dt, &deadline, &pr);
 
-Lista * addProcesso(Processo *p, Lista *l) {
-	Lista *new = malloc(sizeof(Lista));
-	printf("Aqui não\n");
-	new->proc = p;
-	printf("Coloquei o p no new");
-	new->prox = l;
-	printf("Coloquei o l no prox");
-	
-	return new;
-}
-
-Lista * leProcessos() {
-	char buffer[NMAX];
-	Processo *p;
-	Lista *l = NULL;
-	
-	while(fgets(buffer, sizeof(buffer), stdin) != NULL) {
-	//while(scanf("%s", buffer) == 0) {
-		p = malloc(sizeof(Processo));
-		sscanf(buffer, "%lf %s %lf %lf %d", &p->t0, p->nome, &p->dt, &p->deadline, &p->p);
-		printf("%f", p->t0);
-		printf("%s", p->nome);
-		printf("%f", p->dt);
-		printf("%f", p->deadline);
-		printf("%d", p->p);
-		
+		if (k < 1)
+			break;
+		linha++;
+		p->t0 = t0;
+		strcpy(p->nome, nome);
+		p->dt = dt;
+		p->deadline = deadline;
+		p->p = pr;
 		p->rtime = p->dt;
-		
-		printProcesso(p);
-		l = addProcesso(p, l);
+		queuePut(p);
+		q = queueGet();
+		printf("ESSE E O P\n");
+		printf("%f\n", p->t0);
+		printf("%s\n", p->nome);
+		printf("%f\n", p->dt);
+		printf("%f\n", p->deadline);
+		printf("%d\n", p->p);
+		printf("%f\n", p->rtime);
+		printf("ESSE E O Q\n");
+		printf("%f\n", q->t0);
+		printf("%s\n", q->nome);
+		printf("%f\n", q->dt);
+		printf("%f\n", q->deadline);
+		printf("%d\n", q->p);
+		printf("%f\n", q->rtime);
+
 	}
-}
-
-void *thread_function(void *arg) {
-  int i, j;
-  for ( i=0; i<10; i++ ) {
-    printf("Thread says hi!\n");
-    for (j = 0; j < 1000; j++)
-  	printf("Oi %d\n", j);
-    sleep(3);
-  }
-  return NULL;
-}
-
-int main(void) {
-	Lista *l;
 	
-	l = leProcessos();
-	freeLista(l);
-	/*
-  pthread_t mythread;
-  
-  if ( pthread_create( &mythread, NULL, thread_function, NULL) ) {
-    printf("error creating thread.");
-    abort();
-  }
+}
 
-  if ( pthread_join ( mythread, NULL ) ) {
-    printf("error joining thread.");
-    abort();
-  }
-*/
-  exit(0);
+int main(int argc, char *argv[]) {
+	FILE *entrada, *saida;
+	
+	entrada = fopen(argv[2], "r");
+	saida = fopen(argv[3], "w");
+	
+	if (argc == 5 && !strcmp(argv[4],"d\0")){
+		verbose = TRUE;
+		}
+	if (verbose)
+		fprintf(stderr, "FALEI QUE DEU ERRO!\n");
+	
+	queueInit(1);
 
+	leProcessos(entrada);
+	fclose(entrada);
+	
+	fprintf(saida, "Fiz mudancas de contexto :D\n");
+	fclose(saida);
+	queueFree();
+
+	return 0;
 }

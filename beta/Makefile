@@ -3,11 +3,11 @@ CC = gcc
 RM = rm
 ###########################################################################
 
-fila: util.o queue.o filaTeste.o
-	$(CC) util.o queue.o filaTeste.o -o fila  
+ep1: util.o queue.o ep1.o
+	$(CC) util.o queue.o ep1.o -o ep1  
 
-filaTeste.o: filaTeste.c queue.h util.h item.h
-	$(CC) $(CFLAGS) -c filaTeste.c
+ep1.o: ep1.c queue.h util.h item.h ep1.h
+	$(CC) $(CFLAGS) -c ep1.c
 
 queue.o: queue.c queue.h util.h
 	$(CC) $(CFLAGS) -c queue.c
@@ -16,5 +16,5 @@ util.o: util.c util.h
 	$(CC) $(CFLAGS) -c util.c
 
 clean:
-	$(RM) *~ *.o fila
+	$(RM) *~ *.o ep1
 

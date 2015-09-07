@@ -16,6 +16,8 @@ typedef enum
 } 
 Bool;
 
+/*extern Bool verbose;*/
+
 void *
 mallocSafe (unsigned int n); 
 
