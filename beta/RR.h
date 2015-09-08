@@ -5,6 +5,6 @@
                        queueGet(), queueFree() */
 #include "item.h"
 #include "util.h"   /* mallocSafe(), pause(), Bool */
-#include "FCFS.h"
-#include "SJF.h"
-#include "RR.h"
+
+
+void escalonadorRR(Link trace, FILE * saida);

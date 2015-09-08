@@ -80,7 +80,7 @@ void escalonadorSJF(Link trace, FILE * saida) {
 		linha++;
 	}
 
-	fprintf(saida, "%d", mudanca);
+	fprintf(saida, "%d\n", mudanca);
 	queueFree(prontos);
 
 }
