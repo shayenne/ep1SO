@@ -1,0 +1,52 @@
+=====
+SHELL
+=====
+Para compilar o shell deve-se digitar o seguinte comando no terminal:
+$ make ep1sh
+
+Para executá-lo, basta digitar 
+$ /ep1sh
+
+O ep1sh está preparado para executar os seguintes comandos com seus respectivos
+argumentos:
+
+- cd <novo diretorio>
+- pwd
+- ls -l
+- ./ep1 <argumentos>
+
+==========================
+SIMULADOR DE ESCALONADORES
+==========================
+Para compilar o simulador de escalonadores deve-se digitar o seguinte comando no terminal:
+$ make ep1
+
+Para executar o simulador de escalonadores, basta digitar 
+
+$ ./ep1 <n> <arquivo de trace> <arquivo de saida> [d]
+
+Os argumentos entre <> são obrigatórios e seguem as seguintes especificações:
+
+ n: inteiro entre 1 e 6
+	Descreve o tipo de escalonamento que será aplicado aos processos que estão no
+	arquivo de trace.
+	
+	1 : FCFS
+	2 : SJF
+	3 : STRN
+	4 : RR
+	5 : Escalonamento com prioridade
+	6 : Escalonamento em tempo real com deadlines rígidos
+
+ arquivo de trace: arquivo já existente
+	Contem linhas com processos formatadas da seguinte forma:
+
+	t0 nome dt deadline p
+
+
+ arquivo de saida: arquivo
+	Onde serão guardadas as informações sobre os processos escalonados
+
+ d: verbose, opcional
+	Envia para a saída de erro informações sobre quando os processos começam a
+	usar determinada CPU, liberam a CPU e finalizam a sua execução.
