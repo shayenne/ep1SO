@@ -1,0 +1,259 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{ragged2e}
+\usepackage{url}
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+% Mesma cor do trabalho original
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+\usepackage{caption}
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title{EP1} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Florence Alyssa \and Shayenne Moura} % Your name
+\institute[USP] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Sistemas Operacionais
+ \\ Bacharelado em Ciência da Computação% Your institution for the title page
+\medskip
+\textit{} % Your email address
+}
+\date{14 de setembro de 2015} % Date, can be changed to a custom date
+
+
+
+
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+\begin{frame}
+\frametitle{Sumário}
+\tableofcontents
+\end{frame}
+
+
+%\begin{frame}
+%\frametitle{Visão Geral} % Table of contents slide, comment this block out to remove it
+%\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+%\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+\section{Objetivo} 
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Objetivo}
+Implementar um shell simples, para permitir a interação do usuário com o sistema operacional, e um simulador de processos com diversos algoritmos de escalonamento para esses
+processos. 
+\end{frame}
+
+\section{Arquitetura do shell}
+\begin{frame}
+\frametitle{Arquitetura do shell: ep1sh}
+
+O shell (ep1sh) é basicamente um processo que 
+recebe os comandos através do readline e cria um novo processo através de um \emph{fork()}.
+
+Neste novo processo é executado o comando digitado no shell.
+
+Alguns comandos são válidos em ep1sh, são eles:
+
+\begin{itemize}
+\item cd
+\item pwd
+\item ls
+\item ./ep1 ``argumentos''
+\item exit
+\end{itemize}
+
+O último comando finaliza a execução do ep1sh.
+
+\end{frame}
+%------------------------------------------------
+%------------------------------------------------
+\section{Escalonadores} 
+%------------------------------------------------
+
+
+\begin{frame}
+\frametitle{Características comuns}
+
+\justifying
+\end{frame}
+
+\subsection{FCFS}
+\begin{frame}
+\frametitle{First Come First Served}
+
+\justifying
+\end{frame}
+
+%------------------------------------------------
+\subsection{SJF} 
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Shortest Job First}
+
+\justifying
+\end{frame}
+
+\subsection{SRTN}
+\begin{frame}
+\frametitle{Shortest Remaining Time Next}
+
+\justifying
+\end{frame}
+
+%------------------------------------------------
+\subsection{RR} 
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Round-Robin}
+
+\justifying
+
+\end{frame}
+
+%------------------------------------------------
+\subsection{Escalonamento com prioridade} 
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Escalonamento com prioridade}
+
+\justifying
+\end{frame}
+
+\subsection{Escalonamento em tempo real}
+\begin{frame}
+\frametitle{Escalonamento em tempo real com deadlines rígidos}
+
+
+\justifying
+\end{frame}
+%------------------------------------------------
+\section{Resultados} 
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{FCFS} 
+\justifying
+\end{frame}
+
+\begin{frame}
+\frametitle{SJF} 
+\justifying
+\end{frame}
+
+\begin{frame}
+\frametitle{SRTN} 
+\justifying
+\end{frame}
+
+\begin{frame}
+\frametitle{RR} 
+\justifying
+\end{frame}
+
+\begin{frame}
+\frametitle{Escalonamento com prioridade} 
+\justifying
+\end{frame}
+
+\begin{frame}
+\frametitle{Escalonamento em tempo real} 
+\justifying
+\end{frame}
+
+
+
+\end{document}
