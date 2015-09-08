@@ -9,6 +9,8 @@
 #include <stdlib.h> /* malloc(), EXIT_FAILURE */
 #include <stdio.h> /* fprintf(), stderr */
 
+int verbose;
+
 void *
 mallocSafe (unsigned int n) 
 {

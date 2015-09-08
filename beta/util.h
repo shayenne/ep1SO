@@ -24,5 +24,7 @@ mallocSafe (unsigned int n);
 void 
 pause();
 
+extern int verbose;
+
 #endif
 

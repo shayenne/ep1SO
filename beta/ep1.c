@@ -1,26 +1,21 @@
-#include <stdio.h>  /* fprintf(), fscanf() */
-#include <stdlib.h> /* EXIT_FAILURE, EXIT_SUCESS, malloc(), free() */
-#include <string.h> /* strcmp() */
-#include "queue.h"  /* queueInit(), queueEmpty(), queuePut(), 
-                       queueGet(), queueFree() */
-#include "item.h"
-#include "util.h"   /* mallocSafe(), pause(), Bool */
 #include "ep1.h"
 
 
-
-void leProcessos(FILE * entrada) {
+Link leProcessos(FILE * entrada, Link trace) {
 	char  nome[20] = "\0";
 	double t0, dt, deadline;
-	int pr, k, linha = 0;
-	Processo p, q;
+	int pr, k, linha = 1;
+	Processo p;
 	
 	while(TRUE) {
 		p = (Processo) malloc(sizeof(struct processo));
 		k = fscanf(entrada, "%lf %s %lf %lf %d", &t0, nome, &dt, &deadline, &pr);
-
+		
 		if (k < 1)
 			break;
+		
+		fprintf(stderr, "Trace: %4d   Processo: %s\n", linha, nome);
+		
 		linha++;
 		p->t0 = t0;
 		strcpy(p->nome, nome);
@@ -28,8 +23,9 @@ void leProcessos(FILE * entrada) {
 		p->deadline = deadline;
 		p->p = pr;
 		p->rtime = p->dt;
-		queuePut(p);
-		q = queueGet();
+		trace = queuePut(p, trace);
+
+
 		printf("ESSE E O P\n");
 		printf("%f\n", p->t0);
 		printf("%s\n", p->nome);
@@ -37,38 +33,34 @@ void leProcessos(FILE * entrada) {
 		printf("%f\n", p->deadline);
 		printf("%d\n", p->p);
 		printf("%f\n", p->rtime);
-		printf("ESSE E O Q\n");
-		printf("%f\n", q->t0);
-		printf("%s\n", q->nome);
-		printf("%f\n", q->dt);
-		printf("%f\n", q->deadline);
-		printf("%d\n", q->p);
-		printf("%f\n", q->rtime);
-
 	}
-	
+	return trace;
 }
 
 int main(int argc, char *argv[]) {
 	FILE *entrada, *saida;
+	Link trace;
 	
 	entrada = fopen(argv[2], "r");
 	saida = fopen(argv[3], "w");
 	
-	if (argc == 5 && !strcmp(argv[4],"d\0")){
+	if (argc == 5 && !strcmp(argv[4],"d\0"))
 		verbose = TRUE;
-		}
-	if (verbose)
-		fprintf(stderr, "FALEI QUE DEU ERRO!\n");
-	
-	queueInit(1);
 
-	leProcessos(entrada);
+
+	trace = queueInit(1);
+
+	trace = leProcessos(entrada, trace);
 	fclose(entrada);
-	
-	fprintf(saida, "Fiz mudancas de contexto :D\n");
+
+	if (!strcmp(argv[1], "1"))
+		escalonadorFCFS(trace, saida);
+
+	if (!strcmp(argv[1], "2"))
+		escalonadorSJF(trace, saida);
+
 	fclose(saida);
-	queueFree();
+
 
 	return 0;
 }

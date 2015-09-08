@@ -1,8 +1,3 @@
-/* 
- * MAC0122 Principios de Desenvolvimento de Algoritmos
- */
-
-
 /* queue.c: IMPLEMENTACAO DA FILA */
 
 /* Interface para esta implementacao */
@@ -25,41 +20,34 @@
  *       cabeca de lista
  */
 
-
-typedef struct queueNode* Link;
-struct queueNode { 
-  Item conteudo; 
-  Link prox; 
-};
-
-static Link inicio;
-
-
-void 
+Link 
 queueInit(int n) 
 { 
-  inicio = (Link) mallocSafe(sizeof *inicio);
+  Link inicio = (Link) mallocSafe(sizeof *inicio);
   inicio->prox = inicio;
+  inicio->conteudo = NULL;
+  return inicio;
 }
 
 int 
-queueEmpty()
+queueEmpty(Link inicio)
 { 
   return inicio == inicio->prox; 
 }
 
-void
-queuePut(Item conteudo)
+Link
+queuePut(Item conteudo, Link inicio)
 { 
   Link nova = (Link) mallocSafe(sizeof *nova);
   nova->prox = inicio->prox;
   inicio->prox = nova;
   inicio->conteudo = conteudo;
   inicio = nova; 
+  return inicio;
 }
 
 Item 
-queueGet()
+queueGet(Link inicio)
 { 
   Item conteudo;
   Link t = inicio->prox; 
@@ -70,7 +58,7 @@ queueGet()
 }
 
 void 
-queueFree()
+queueFree(Link inicio)
 { 
   Link p = inicio->prox;
   while (p != inicio) 

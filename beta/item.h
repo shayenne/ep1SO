@@ -8,6 +8,7 @@
 #define MAXNOME 20
 /* item.h */
 typedef struct processo {
+	int pid;
 	double t0;
 	char nome[MAXNOME];
 	double dt;
