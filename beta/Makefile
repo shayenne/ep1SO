@@ -1,16 +1,17 @@
 CFLAGS = -Wall -O2 -ansi -pedantic -Wno-unused-result
+PFLAGS = -lpthread
 CC = gcc
 RM = rm
 ###########################################################################
 
 ep1: util.o queue.o ep1.o FCFS.o SJF.o RR.o
-	$(CC) util.o queue.o ep1.o FCFS.o SJF.o RR.o -o ep1  
+	$(CC) $(PFLAGS) util.o queue.o ep1.o FCFS.o SJF.o RR.o -o ep1  
 
 ep1.o: ep1.c queue.h util.h item.h ep1.h FCFS.h SJF.h RR.h
-	$(CC) $(CFLAGS) -c ep1.c
+	$(CC) $(CFLAGS) $(PFLAGS) -c ep1.c
 
-FCFS.o: FCFS.c FCFS.h queue.h util.h item.h
-	$(CC) $(CFLAGS) -c FCFS.c
+FCFS.o: FCFS.c FCFS.h queue.h util.h item.h 
+	$(CC) $(CFLAGS) $(PFLAGS) -c FCFS.c
 
 SJF.o: SJF.c SJF.h queue.h util.h item.h
 	$(CC) $(CFLAGS) -c SJF.c

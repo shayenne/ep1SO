@@ -6,9 +6,11 @@
 #define _ITEM_H
 
 #define MAXNOME 20
+
+#include <pthread.h>
 /* item.h */
 typedef struct processo {
-	int pid;
+	pthread_t pid;
 	double t0;
 	char nome[MAXNOME];
 	double dt;

@@ -14,7 +14,8 @@ Link leProcessos(FILE * entrada, Link trace) {
 		if (k < 1)
 			break;
 		
-		fprintf(stderr, "Trace: %4d   Processo: %s\n", linha, nome);
+		if (verbose)
+			fprintf(stderr, "Trace: %4d   Processo: %s\n", linha, nome);
 		
 		linha++;
 		p->t0 = t0;
@@ -26,13 +27,14 @@ Link leProcessos(FILE * entrada, Link trace) {
 		trace = queuePut(p, trace);
 
 
-		printf("ESSE E O P\n");
+/*		printf("ESSE E O P\n");
 		printf("%f\n", p->t0);
 		printf("%s\n", p->nome);
 		printf("%f\n", p->dt);
 		printf("%f\n", p->deadline);
 		printf("%d\n", p->p);
-		printf("%f\n", p->rtime);
+		printf("%f\n", p->rtime);*/
+
 	}
 	return trace;
 }

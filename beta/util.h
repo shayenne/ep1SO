@@ -7,7 +7,9 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
+#define _GNU_SOURCE
 #define ENTER '\n'
+#define CPUMAX 10
 
 typedef enum 
 {
@@ -25,6 +27,7 @@ void
 pause();
 
 extern int verbose;
+
 
 #endif
 
