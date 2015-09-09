@@ -61,6 +61,8 @@ int main(int argc, char *argv[]) {
 	if (!strcmp(argv[1], "2"))
 		escalonadorSJF(trace, saida);
 
+	if (!strcmp(argv[1], "3"))
+		escalonadorSRTN(trace, saida);
 
 	if (!strcmp(argv[1], "4"))
 		escalonadorRR(trace, saida);

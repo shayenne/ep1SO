@@ -23,8 +23,8 @@ Bool;
 void *
 mallocSafe (unsigned int n); 
 
-void 
-pause();
+/*void 
+pause();*/
 
 extern int verbose;
 
