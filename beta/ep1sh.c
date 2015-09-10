@@ -21,7 +21,7 @@ int main(){
   while (strncmp("exit", line, 4) != 0){
     command(argv);
     
-    if (strcmp(argv[0],"")){
+    if (strcmp(argv[0], "")){
       if ((pid = fork()) == 0)
         execve(argv[0], argv, envp);
         
@@ -41,8 +41,6 @@ void command(char *argv[]){
   char *token;
   char prompt[70] = "[";
   int i;
-
-
 
   /*TRATAMENTO DO PROMPT [local]*/
   ex = strtok((char *)cwd, " ");
@@ -82,6 +80,20 @@ void command(char *argv[]){
   /*TRATAMENTO DE pwd*/
   else if (strcmp(token, "pwd") == 0)
     printf("%s\n",cwd);
+
+  /*TRATAMENTO DE ./ep1*/
+  else if (strcmp(token, "./ep1") == 0){
+    argv[0] = "./hello";
+
+    token = strtok(NULL, " ");
+
+    for (i = 1; token != NULL; i++){
+      argv[i] = token;
+      token = strtok(NULL, " ");
+    }
+    argv[i] = NULL;
+  }
+
 
   free((char *)cwd);
 }
