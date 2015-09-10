@@ -13,14 +13,14 @@ void *work(void * time) {
   clock_t ini = clock();
   clock_t fim = clock();
   sem_wait(&mutex);
-  fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d meu nome é: %f \n",
+  fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d meu time é: %f \n",
 	 pthread_self(), sched_getcpu(), *(double *) time);
   while ((double)(fim - ini)/CLOCKS_PER_SEC < *(double *)time) {
     i++;
     fim = clock();
   }
-  fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d meu nome é: %f o i: %ld \n",
-	  pthread_self(), sched_getcpu(), *(double *) time, i);
+  fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d meu time é: %f\n",
+	  pthread_self(), sched_getcpu(), *(double *) time);
   sem_post(&mutex);
   return NULL;
   pthread_exit(NULL);
@@ -35,7 +35,7 @@ int maxCPU() {
 
 /* Devolve 0 se não pode receber processos e 1 se pode receber. */
 void * gerente(void * proc) {
-  int rc, i, state, manstate;
+  int i, state, manstate;
   Processo p = *(Processo *) proc;
   sem_getvalue(&manager, &manstate);
   printf("Manstate de p: %d %s\n", manstate, p->nome);     
@@ -52,7 +52,7 @@ void * gerente(void * proc) {
     if (state == 1) {
       sem_wait(&cpu[i]);
       /*Colocar o processo nesta CPU*/
-      rc = pthread_create(&p->pid, &attr[i], work,(void *) &p->dt);
+      pthread_create(&p->pid, &attr[i], work,(void *) &p->dt);
       pthread_join(p->pid, NULL);
       sem_post(&manager);
       sem_post(&cpu[i]);
@@ -77,7 +77,7 @@ void escalonadorFCFS(Link trace, FILE * saida) {
   Link pronto;
   pthread_t thread[100];
   
-  int i, j, state, rc, manstate;
+  int i, j;
   
 
   
