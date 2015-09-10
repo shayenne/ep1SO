@@ -12,8 +12,7 @@ void *work(void * time) {
   clock_t fim = clock();
   sem_wait(&mutex);
   printf("Entrei na work! Sou a thread %ld e Estou usando a cpu: %d o meu time é :%f, ini:%f, fim:%f\n", pthread_self(), sched_getcpu(), *(double *) time, ini, fim);
-	while ((fim - ini)/ CLOCKS_PER_SEC < *(clock_t *)time) {
-	  fim = clock() ;
+	while (i < 1E7) {
 	  i++;
 	}
 	printf("Esse é o i %ld sou thread %ld, cpu %d, meu fim: %f \n", i, pthread_self(), sched_getcpu(), fim - ini);
@@ -55,7 +54,10 @@ void escalonadorFCFS(Link trace, FILE * saida) {
     pthread_attr_init(&attr[i]);
     pthread_attr_setaffinity_np(&attr[i], sizeof(cpu_set_t), &cpuset[i]);
   }
-  
+
+  sem_unlink("mutex");
+  /* Inicialização do semáforo */
+  sem_init(&mutex,0,1);
   
   sem_unlink("manager");
   /* Inicialização do semáforo */
@@ -81,13 +83,13 @@ void escalonadorFCFS(Link trace, FILE * saida) {
     sem_getvalue(&manager, &manstate);
     printf("Manstate de p: %d %s\n", manstate, p->nome);
     
-    while (manstate > 0) {
+    if (manstate > 0) {
       
       sem_wait(&manager);
 	
-      for (i = 0; i < maxCPU(); i++) {
+      for (i = 0; i < maxCPU();i++) {
 	sem_getvalue(&cpu[i], &state); 
-	printf("State de p: %d %s CPU %d CERTA %d\n", state, p->nome, i, sched_getcpu());
+	printf("State de p: %d %s CPU %d\n", state, p->nome, i);
 	if (state == 1) {
 	    sem_wait(&cpu[i]);
 	    /*Colocar o processo nesta CPU*/
@@ -98,16 +100,19 @@ void escalonadorFCFS(Link trace, FILE * saida) {
 	    sem_post(&cpu[i]);
 	    break;
 	}
+
       }
 	
-      for (i = 0; i < maxCPU(); i++) {
-	pthread_attr_destroy(&attr[i]);
-      }
       
       printf("O gerente recebeu o processo %s\n", p->nome);
     }
   }
 
+      for (i = 0; i < maxCPU(); i++) {
+	pthread_attr_destroy(&attr[i]);
+      }
+
+      pthread_exit(NULL);
   queueFree(pronto);
   pronto = NULL;
 }
