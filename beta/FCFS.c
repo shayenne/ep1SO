@@ -16,7 +16,7 @@ void *work(void * time) {
   fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d meu time é: %f \n",
 	 pthread_self(), sched_getcpu(), *(double *) time);
   while ((double)(fim - ini)/CLOCKS_PER_SEC < *(double *)time) {
-    i++;
+    i = (i + 1)%1000;
     fim = clock();
   }
   fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d meu time é: %f\n",
@@ -42,9 +42,9 @@ void * gerente(void * proc) {
 
   sem_unlink("inc");
   sem_init(&inc, 0, 1);
-  
+  printf(" Tentei entrar no semaforo principal %s\n", p->nome);
   sem_wait(&manager);
-  
+  printf("Entrei no semaforo principal %s\n", p->nome);
   for (i = 0; i < maxCPU();) {
     
     sem_getvalue(&cpu[i], &state); 
@@ -54,8 +54,8 @@ void * gerente(void * proc) {
       /*Colocar o processo nesta CPU*/
       pthread_create(&p->pid, &attr[i], work,(void *) &p->dt);
       pthread_join(p->pid, NULL);
-      sem_post(&manager);
       sem_post(&cpu[i]);
+      sem_post(&manager);
       break;
     }
     sem_wait(&inc);
@@ -120,9 +120,16 @@ void escalonadorFCFS(Link trace, FILE * saida) {
     sleep(1);
   }
    
-  for (j = 0; j < i; j++)
+
+
+  /*
+  for (j = 0; j < i; j++){
+    printf("%d \n",j);
     pthread_join(thread[j], NULL);
+    }*/
+
   
+ 
   for (i = 0; i < maxCPU(); i++) {
     pthread_attr_destroy(&attr[i]);
   }

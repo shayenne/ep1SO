@@ -167,9 +167,11 @@ void escalonadorSJF(Link trace, FILE * saida) {
     sleep(1);
   }
    
+
+  /*
   for (j = 0; j < i; j++)
     pthread_join(thread[j], NULL);
-  
+  */
   for (i = 0; i < maxCPU2(); i++) {
     pthread_attr_destroy(&attr[i]);
   }

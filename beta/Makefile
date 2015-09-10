@@ -29,10 +29,10 @@ util.o: util.c util.h
 	$(CC) $(CFLAGS) -c util.c
 
 ep1sh: ep1sh.o
-	$(CC) -lreadline ep1sh.o -o ep1sh
+	$(CC) ep1sh.o -o ep1sh -lreadline -fno-stack-protector
 
 ep1sh.o: ep1sh.c
-	$(CC) -lreadline -c ep1sh.c
+	$(CC) -c -lreadline  ep1sh.c
 
 
 
