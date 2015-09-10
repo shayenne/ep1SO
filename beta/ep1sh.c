@@ -83,7 +83,7 @@ void command(char *argv[]){
 
   /*TRATAMENTO DE ./ep1*/
   else if (strcmp(token, "./ep1") == 0){
-    argv[0] = "./hello";
+    argv[0] = "./ep1";
 
     token = strtok(NULL, " ");
 
