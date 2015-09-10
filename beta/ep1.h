@@ -7,4 +7,5 @@
 #include "util.h"   /* mallocSafe(), pause(), Bool */
 #include "FCFS.h"
 #include "SJF.h"
+#include "SRTN.h"
 #include "RR.h"

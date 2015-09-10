@@ -35,11 +35,7 @@ void *workSJF(void * time) {
   pthread_exit(NULL);
 }
 
-int maxCPU2() {
-  if (sysconf(_SC_NPROCESSORS_ONLN) > CPUMAX)
-    return CPUMAX;
-  return sysconf(_SC_NPROCESSORS_ONLN);
-}
+
 
 
 /* Devolve 0 se não pode receber processos e 1 se pode receber. */
@@ -54,7 +50,7 @@ void * gerenteSJF(void * proc) {
   
   sem_wait(&manager);
   
-  for (i = 0; i < maxCPU2();) {
+  for (i = 0; i < maxCPU();) {
     
     sem_getvalue(&cpu[i], &state);
     printf("State de p: %d %s CPU %d\n", state, p->nome, i);
@@ -86,14 +82,14 @@ void escalonadorSJF(Link trace, FILE * saida) {
   Link prontos, juntos;
   pthread_t thread[100];
   
-  int i, j, tam;
+  int i, tam;
   
 
   
   /*thread = pthread_self();*/
   
   /* Inicializa conjunto de CPU's disjuntos */
-  for (i = 0; i < maxCPU2(); i++) {
+  for (i = 0; i < maxCPU(); i++) {
     CPU_ZERO(&cpuset[i]);
     CPU_SET(i, &cpuset[i]);
     
@@ -107,9 +103,9 @@ void escalonadorSJF(Link trace, FILE * saida) {
   
   sem_unlink("manager");
   /* Inicialização do semáforo */
-  sem_init(&manager,0,maxCPU2());
+  sem_init(&manager,0,maxCPU());
   
-  for (i = 0; i < maxCPU2(); i++) {
+  for (i = 0; i < maxCPU(); i++) {
     sem_unlink("cpu[i]");
     /* Inicialização do semáforo */
     sem_init(&cpu[i],0,1);
@@ -172,7 +168,7 @@ void escalonadorSJF(Link trace, FILE * saida) {
   for (j = 0; j < i; j++)
     pthread_join(thread[j], NULL);
   */
-  for (i = 0; i < maxCPU2(); i++) {
+  for (i = 0; i < maxCPU(); i++) {
     pthread_attr_destroy(&attr[i]);
   }
   

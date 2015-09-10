@@ -3,13 +3,21 @@
  */
 
 /* Implementacao de funcoes de uso geral */
-
+#define _GNU_SOURCE
+#include <sched.h>
 #include "util.h" /* interface para este modulo */
-
+#include <unistd.h>
 #include <stdlib.h> /* malloc(), EXIT_FAILURE */
 #include <stdio.h> /* fprintf(), stderr */
 
 int verbose;
+
+int maxCPU() {
+  if (sysconf(_SC_NPROCESSORS_ONLN) > CPUMAX)
+    return CPUMAX;
+  return sysconf(_SC_NPROCESSORS_ONLN);
+}
+
 
 void *
 mallocSafe (unsigned int n) 
@@ -26,7 +34,7 @@ mallocSafe (unsigned int n)
     return p;
 }
 
-void 
+/*void 
 pause()
 {
     char ch;
@@ -34,4 +42,4 @@ pause()
     do
 	scanf("%c", &ch);
     while (ch != ENTER);
-}
+}*/

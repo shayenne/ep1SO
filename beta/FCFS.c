@@ -26,12 +26,6 @@ void *work(void * time) {
   pthread_exit(NULL);
 }
 
-int maxCPU() {
-  if (sysconf(_SC_NPROCESSORS_ONLN) > CPUMAX)
-    return CPUMAX;
-  return sysconf(_SC_NPROCESSORS_ONLN);
-}
-
 
 /* Devolve 0 se não pode receber processos e 1 se pode receber. */
 void * gerente(void * proc) {
@@ -77,7 +71,7 @@ void escalonadorFCFS(Link trace, FILE * saida) {
   Link pronto;
   pthread_t thread[100];
   
-  int i, j;
+  int i;
   
 
   

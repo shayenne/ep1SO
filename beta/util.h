@@ -11,6 +11,8 @@
 #define ENTER '\n'
 #define CPUMAX 10
 
+int maxCPU();
+
 typedef enum 
 {
     FALSE,
