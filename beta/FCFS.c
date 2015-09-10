@@ -15,8 +15,9 @@ void *work(void * time) {
   sem_wait(&mutex);
   fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d meu nome é: %f \n",
 	 pthread_self(), sched_getcpu(), *(double *) time);
-  while (i < 1E9) {
+  while ((double)(fim - ini)/CLOCKS_PER_SEC < *(double *)time) {
     i++;
+    fim = clock();
   }
   fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d meu nome é: %f o i: %ld \n",
 	  pthread_self(), sched_getcpu(), *(double *) time, i);
