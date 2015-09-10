@@ -2,22 +2,27 @@
 #include "impressao.h"
 #include <semaphore.h>
 sem_t mutex;
+sem_t inc;
 sem_t cpu[CPUMAX];
 sem_t manager;
-
+cpu_set_t cpuset[CPUMAX];
+pthread_attr_t attr[CPUMAX];
 
 void *work(void * time) {
   long i = 0;
   clock_t ini = clock();
   clock_t fim = clock();
   sem_wait(&mutex);
-  printf("Entrei na work! Sou a thread %ld e Estou usando a cpu: %d o meu time é :%f, ini:%f, fim:%f\n", pthread_self(), sched_getcpu(), *(double *) time, ini, fim);
-	while (i < 1E7) {
-	  i++;
-	}
-	printf("Esse é o i %ld sou thread %ld, cpu %d, meu fim: %f \n", i, pthread_self(), sched_getcpu(), fim - ini);
-	sem_post(&mutex);
-	return NULL;
+  fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d meu nome é: %f \n",
+	 pthread_self(), sched_getcpu(), *(double *) time);
+  while (i < 1E9) {
+    i++;
+  }
+  fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d meu nome é: %f o i: %ld \n",
+	  pthread_self(), sched_getcpu(), *(double *) time, i);
+  sem_post(&mutex);
+  return NULL;
+  pthread_exit(NULL);
 }
 
 int maxCPU() {
@@ -28,7 +33,38 @@ int maxCPU() {
 
 
 /* Devolve 0 se não pode receber processos e 1 se pode receber. */
-int gerente(Processo p) {
+void * gerente(void * proc) {
+  int rc, i, state, manstate;
+  Processo p = *(Processo *) proc;
+  sem_getvalue(&manager, &manstate);
+  printf("Manstate de p: %d %s\n", manstate, p->nome);     
+
+  sem_unlink("inc");
+  sem_init(&inc, 0, 1);
+  
+  sem_wait(&manager);
+  
+  for (i = 0; i < maxCPU();) {
+    
+    sem_getvalue(&cpu[i], &state); 
+    printf("State de p: %d %s CPU %d\n", state, p->nome, i);
+    if (state == 1) {
+      sem_wait(&cpu[i]);
+      /*Colocar o processo nesta CPU*/
+      rc = pthread_create(&p->pid, &attr[i], work,(void *) &p->dt);
+      pthread_join(p->pid, NULL);
+      sem_post(&manager);
+      sem_post(&cpu[i]);
+      break;
+    }
+    sem_wait(&inc);
+    i++;
+    sem_post(&inc);
+  }
+        
+  printf("O gerente recebeu o processo %s\n", p->nome);
+  pthread_exit(NULL);
+  return NULL;
 }
 
 /*************************************************************
@@ -38,11 +74,11 @@ int gerente(Processo p) {
 void escalonadorFCFS(Link trace, FILE * saida) {
   Processo p;
   Link pronto;
+  pthread_t thread[100];
   
-  int i, state, rc, manstate;
+  int i, j, state, rc, manstate;
   
-  cpu_set_t cpuset[CPUMAX];
-  pthread_attr_t attr[CPUMAX];
+
   
   /*thread = pthread_self();*/
   
@@ -74,45 +110,23 @@ void escalonadorFCFS(Link trace, FILE * saida) {
   trace = NULL;
   
   printf("N CPU = %d\n", maxCPU());
-  
+  i = 0;
   while (!queueEmpty(pronto)) {
+    i++;
     p = queueGet(pronto);
     
-    /*printf("Li o processo p: %s\n", p->nome);*/
-    	
-    sem_getvalue(&manager, &manstate);
-    printf("Manstate de p: %d %s\n", manstate, p->nome);
-    
-    if (manstate > 0) {
-      
-      sem_wait(&manager);
-	
-      for (i = 0; i < maxCPU();i++) {
-	sem_getvalue(&cpu[i], &state); 
-	printf("State de p: %d %s CPU %d\n", state, p->nome, i);
-	if (state == 1) {
-	    sem_wait(&cpu[i]);
-	    /*Colocar o processo nesta CPU*/
-	    rc = pthread_create(&p->pid, &attr[i], work,(void *) &p->dt);
-	    
-	    /*pthread_join(p->pid, NULL);*/
-	    sem_post(&manager);
-	    sem_post(&cpu[i]);
-	    break;
-	}
-
-      }
-	
-      
-      printf("O gerente recebeu o processo %s\n", p->nome);
-    }
+    pthread_create(&thread[i], NULL, gerente, (void *) &p);
+    sleep(1);
   }
-
-      for (i = 0; i < maxCPU(); i++) {
-	pthread_attr_destroy(&attr[i]);
-      }
-
-      pthread_exit(NULL);
+   
+  for (j = 0; j < i; j++)
+    pthread_join(thread[j], NULL);
+  
+  for (i = 0; i < maxCPU(); i++) {
+    pthread_attr_destroy(&attr[i]);
+  }
+  
+  pthread_exit(NULL);
   queueFree(pronto);
   pronto = NULL;
 }
