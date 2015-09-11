@@ -2,10 +2,11 @@
 SHELL
 =====
 Para compilar o shell deve-se digitar o seguinte comando no terminal:
+$ make
 $ make ep1sh
 
 Para executá-lo, basta digitar 
-$ /ep1sh
+$ ./ep1sh
 
 O ep1sh está preparado para executar os seguintes comandos com seus respectivos
 argumentos:
