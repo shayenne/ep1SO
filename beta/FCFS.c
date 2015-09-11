@@ -8,45 +8,49 @@ sem_t manager;
 cpu_set_t cpuset[CPUMAX];
 pthread_attr_t attr[CPUMAX];
 
-void *work(void * time) {
+void *work(void * proc) {
+  Processo p = *(Processo *) proc;
   long i = 0;
   clock_t ini = clock();
   clock_t fim = clock();
   sem_wait(&mutex);
-  fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d meu time é: %f \n",
-	 pthread_self(), sched_getcpu(), *(double *) time);
-  while ((double)(fim - ini)/CLOCKS_PER_SEC < *(double *)time) {
+  
+  if (verbose)
+    fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d\n", pthread_self(), sched_getcpu());
+  while ((double)(fim - ini)/CLOCKS_PER_SEC < (double) p->dt) {
     i = (i + 1)%1000;
     fim = clock();
   }
-  fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d meu time é: %f\n",
-	  pthread_self(), sched_getcpu(), *(double *) time);
+  if (verbose)
+    fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d\n", pthread_self(), sched_getcpu());
+  
+  fprintf(saida, "%s %f %f\n", p->nome, (double)fim/CLOCKS_PER_SEC,(double) (fim-ini)/CLOCKS_PER_SEC);
   sem_post(&mutex);
   return NULL;
   pthread_exit(NULL);
 }
 
 
-/* Devolve 0 se não pode receber processos e 1 se pode receber. */
+
 void * gerente(void * proc) {
   int i, state, manstate;
   Processo p = *(Processo *) proc;
   sem_getvalue(&manager, &manstate);
-  printf("Manstate de p: %d %s\n", manstate, p->nome);     
-
+  
+  
   sem_unlink("inc");
   sem_init(&inc, 0, 1);
-  printf(" Tentei entrar no semaforo principal %s\n", p->nome);
+  
   sem_wait(&manager);
-  printf("Entrei no semaforo principal %s\n", p->nome);
+  
   for (i = 0; i < maxCPU();) {
     
     sem_getvalue(&cpu[i], &state); 
-    printf("State de p: %d %s CPU %d\n", state, p->nome, i);
+    
     if (state == 1) {
       sem_wait(&cpu[i]);
       /*Colocar o processo nesta CPU*/
-      pthread_create(&p->pid, &attr[i], work,(void *) &p->dt);
+      pthread_create(&p->pid, &attr[i], work,(void *) &p);
       pthread_join(p->pid, NULL);
       sem_post(&cpu[i]);
       sem_post(&manager);
@@ -56,8 +60,8 @@ void * gerente(void * proc) {
     i++;
     sem_post(&inc);
   }
-        
-  printf("O gerente recebeu o processo %s\n", p->nome);
+  
+  
   pthread_exit(NULL);
   return NULL;
 }
@@ -71,11 +75,7 @@ void escalonadorFCFS(Link trace, FILE * saida) {
   Link pronto;
   pthread_t thread[100];
   
-  int i;
-  
-
-  
-  /*thread = pthread_self();*/
+  int i, j, linha = 0;
   
   /* Inicializa conjunto de CPU's disjuntos */
   for (i = 0; i < maxCPU(); i++) {
@@ -85,7 +85,7 @@ void escalonadorFCFS(Link trace, FILE * saida) {
     pthread_attr_init(&attr[i]);
     pthread_attr_setaffinity_np(&attr[i], sizeof(cpu_set_t), &cpuset[i]);
   }
-
+  
   sem_unlink("mutex");
   /* Inicialização do semáforo */
   sem_init(&mutex,0,1);
@@ -100,34 +100,36 @@ void escalonadorFCFS(Link trace, FILE * saida) {
     sem_init(&cpu[i],0,1);
   }
 
-
+  
   pronto = trace;
   trace = NULL;
   
-  printf("N CPU = %d\n", maxCPU());
+  
   i = 0;
   while (!queueEmpty(pronto)) {
     i++;
     p = queueGet(pronto);
     
     pthread_create(&thread[i], NULL, gerente, (void *) &p);
+    linha++;
+    fprintf(stderr, "O processo %s acabou (Saída: linha %d)\n", p->nome, linha);
+    
     sleep(1);
   }
    
 
-
-  /*
-  for (j = 0; j < i; j++){
-    printf("%d \n",j);
-    pthread_join(thread[j], NULL);
-    }*/
-
-  
+  /* for (j = 0; j < i; j++){ */
+  /*   pthread_join(thread[j], NULL); */
+  /* } */
  
   for (i = 0; i < maxCPU(); i++) {
     pthread_attr_destroy(&attr[i]);
   }
   
+  
+  fprintf(saida,"0\n");
+  if (verbose)
+    fprintf(stderr, "Quantidade de mudancas de contexto: 0\n");
   pthread_exit(NULL);
   queueFree(pronto);
   pronto = NULL;

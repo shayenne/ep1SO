@@ -10,6 +10,8 @@
 #define _GNU_SOURCE
 #define ENTER '\n'
 #define CPUMAX 10
+#include <stdio.h>
+extern FILE * saida;
 
 int maxCPU();
 

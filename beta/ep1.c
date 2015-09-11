@@ -1,6 +1,6 @@
 #include "ep1.h"
 
-
+FILE * saida;
 Link leProcessos(FILE * entrada, Link trace) {
 	char  nome[20] = "\0";
 	double t0, dt, deadline;
@@ -40,7 +40,7 @@ Link leProcessos(FILE * entrada, Link trace) {
 }
 
 int main(int argc, char *argv[]) {
-	FILE *entrada, *saida;
+	FILE *entrada;
 	Link trace;
 	
 	entrada = fopen(argv[2], "r");

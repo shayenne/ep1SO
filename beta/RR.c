@@ -23,21 +23,22 @@ void *workRR(void * proc[]) {
   clock_t fim = clock();
 
 
-
+    printf("ENTREI NA WORK\n");
   sem_wait(&mutex);
 
   fprintf(stderr, "Recebi no p: t0 %f\n", p->t0);
   fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d meu time é: %f \n",
 	 pthread_self(), sched_getcpu(), p->dt);
-  while (p->rtime > 0) {
-
-    while ((double)(fim - ini)/CLOCKS_PER_SEC < quantum) {
+  
+  while(p->rtime > 0) {
+    while (p->rtime > 0 && (double)(fim - ini)/CLOCKS_PER_SEC < quantum) {
       i = (i + 1)%1000;
       fim = clock();
+      p->rtime -= (double)(fim - ini)/CLOCKS_PER_SEC;
     }
-    
-    pthread_cond_wait(&cond[x], &cpu[x]);
-    printf("São e salvo!\n");
+    if (p->rtime > 0)
+      pthread_cond_wait(&cond[x], &cpu[x]);
+    printf("São e salvo! rtime = %f\n", p->rtime);
     ini = clock();
   }
   fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d meu time é: %f\n",
@@ -68,36 +69,35 @@ void * gerenteRR(void * proc) {
   printf("Entrei no semaforo principal %s\n", p->nome);
   for (i = 0; i < maxCPU();) {
     
-    sem_getvalue(&cpu[i], &state); 
-    printf("State de p: %d %s CPU %d\n", state, p->nome, i);
+    printf("O processo %s  tentou a CPU %d\n", p->nome, i);
     if (!pthread_mutex_trylock(&cpu[i])) {
+
+      printf("O processo %s  CONSEGUIU a CPU %d\n", p->nome, i);
       ini = clock();
       now = clock();
       /*Colocar o processo nesta CPU*/
-      printf("Resultado do cond\n");
       if (p->rtime == p->dt) {
+	printf("O processo %s  INICIOU a CPU %d\n", p->nome, i);
 	vet[0] = (void *) &p;
 	vet[1] = (void *) &i;
 	pthread_create(&p->pid, &attr[i], workRR,(void *) &vet);
       }
-      else
+      else{
+	printf("O processo %s  CONTINUOU a CPU %d\n", p->nome, i);
 	pthread_cond_signal(&cond[i]);
-      while (p->rtime > 0 && (now - ini)/CLOCKS_PER_SEC < quantum)
-	now = clock();
-      if ((now - ini)/CLOCKS_PER_SEC >= quantum) {
-	printf("\n PASSEI DO QUANTUM\n");
-	printf("Esse é meu antigo rtime %f\n", p->rtime);
-	p->rtime -= (now - ini)/CLOCKS_PER_SEC;
-	printf("Esse é meu novo rtime %f\n", p->rtime);
+      }
+      /* while (p->rtime > 0 && (now - ini)/CLOCKS_PER_SEC < quantum) */
+      /* 	now = clock(); */
+      /* if ((now - ini)/CLOCKS_PER_SEC >= quantum) { */
+      /* 	printf("\n PASSEI DO QUANTUM\n");        */
+      /* 	printf("Esse é meu novo rtime %f\n", p->rtime); */
 	if (p->rtime > 0) {
-	  
 	  pronto = queuePut(p, pronto);
 	  printf("Coloquei o %s na fila?\n",p->nome );
-	 
 	}
 	else
 	  pthread_join(p->pid, NULL);
-      }
+	/* }*/
       pthread_mutex_unlock(&cpu[i]);
       sem_post(&manager);
       break;

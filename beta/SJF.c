@@ -17,19 +17,23 @@ int cmpfunc (const void * a, const void * b)
    
 }
 
-void *workSJF(void * time) {
+void *workSJF(void * proc) {
+  Processo p = *(Processo *) proc;
   long i = 0;
   clock_t ini = clock();
   clock_t fim = clock();
   sem_wait(&mutex);
-  fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d meu time é: %f \n",
-	 pthread_self(), sched_getcpu(), *(double *) time);
-  while ((double)(fim - ini)/CLOCKS_PER_SEC < *(double *)time) {
-    i++;
+  
+  if (verbose)
+    fprintf(stderr, "Comecei a thread %ld e estou usando a cpu: %d\n", pthread_self(), sched_getcpu());
+  while ((double)(fim - ini)/CLOCKS_PER_SEC < (double) p->dt) {
+    i = (i + 1)%1000;
     fim = clock();
   }
-  fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d meu time é: %f\n",
-	  pthread_self(), sched_getcpu(), *(double *) time);
+  if (verbose)
+    fprintf(stderr, "Terminei a thread %ld e estou usando a cpu: %d\n", pthread_self(), sched_getcpu());
+  
+  fprintf(saida, "%s %f %f\n", p->nome, (double)fim/CLOCKS_PER_SEC,(double) (fim-ini)/CLOCKS_PER_SEC);
   sem_post(&mutex);
   return NULL;
   pthread_exit(NULL);
@@ -43,7 +47,7 @@ void * gerenteSJF(void * proc) {
   int i, state, manstate;
   Processo p = *(Processo *) proc;
   sem_getvalue(&manager, &manstate);
-  printf("Manstate de p: %d %s\n", manstate, p->nome);
+
 
   sem_unlink("inc");
   sem_init(&inc, 0, 1);
@@ -53,11 +57,11 @@ void * gerenteSJF(void * proc) {
   for (i = 0; i < maxCPU();) {
     
     sem_getvalue(&cpu[i], &state);
-    printf("State de p: %d %s CPU %d\n", state, p->nome, i);
+
     if (state == 1) {
       sem_wait(&cpu[i]);
       /*Colocar o processo nesta CPU*/
-      pthread_create(&p->pid, &attr[i], work,(void *) &p->dt);
+      pthread_create(&p->pid, &attr[i], work,(void *) &p);
       pthread_join(p->pid, NULL);
       sem_post(&manager);
       sem_post(&cpu[i]);
@@ -68,7 +72,7 @@ void * gerenteSJF(void * proc) {
     sem_post(&inc);
   }
         
-  printf("O gerente recebeu o processo %s\n", p->nome);
+
   pthread_exit(NULL);
   return NULL;
 }
@@ -82,11 +86,8 @@ void escalonadorSJF(Link trace, FILE * saida) {
   Link prontos, juntos;
   pthread_t thread[100];
   
-  int i, tam;
+  int i, j, tam, linha=0;
   
-
-  
-  /*thread = pthread_self();*/
   
   /* Inicializa conjunto de CPU's disjuntos */
   for (i = 0; i < maxCPU(); i++) {
@@ -110,8 +111,6 @@ void escalonadorSJF(Link trace, FILE * saida) {
     /* Inicialização do semáforo */
     sem_init(&cpu[i],0,1);
   }
-
-
 
 
   prontos = queueInit(1);
@@ -141,9 +140,7 @@ void escalonadorSJF(Link trace, FILE * saida) {
       
       qsort(array, tam, sizeof(Processo), cmpfunc);
       
-      printf("\nOrdenação\n");
       for (i = 0; i < tam; i++){
-	printf("=== %s %f\n", array[i]->nome, array[i]->dt);
 	prontos = queuePut(array[i], prontos);
       }
     }
@@ -160,18 +157,25 @@ void escalonadorSJF(Link trace, FILE * saida) {
     p = queueGet(prontos);
     
     pthread_create(&thread[i], NULL, gerenteSJF, (void *) &p);
+
+    linha++;
+    fprintf(stderr, "O processo %s acabou (Saída: linha %d)\n", p->nome, linha);
     sleep(1);
   }
    
 
-  /*
-  for (j = 0; j < i; j++)
-    pthread_join(thread[j], NULL);
-  */
+  
+  /* for (j = 0; j < i; j++) */
+  /*   pthread_join(thread[j], NULL); */
+  
   for (i = 0; i < maxCPU(); i++) {
     pthread_attr_destroy(&attr[i]);
   }
   
+  fprintf(saida,"0\n");
+  if (verbose)
+    fprintf(stderr, "Quantidade de mudancas de contexto: 0\n");
+
   pthread_exit(NULL);
   queueFree(prontos);
   prontos = NULL;
